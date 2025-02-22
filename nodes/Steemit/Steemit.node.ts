@@ -4,7 +4,6 @@ import type {
   INodeType,
   INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeConnectionType } from 'n8n-workflow';
 import type { Operation } from '@upvu/dsteem';
 import { Client as DsteemClient, PrivateKey } from '@upvu/dsteem';
 
