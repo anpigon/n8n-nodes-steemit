@@ -1,0 +1,26 @@
+{
+  "name": "n8n-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "n8n": "^1.79.3",
+    "sqlite3": "^5.1.7"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@scarf/scarf",
+      "cpu-features",
+      "msgpackr-extract",
+      "protobufjs",
+      "sqlite3",
+      "ssh2"
+    ]
+  }
+}
