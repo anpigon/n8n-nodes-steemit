@@ -4,8 +4,11 @@ import type {
   INodeType,
   INodeTypeDescription,
 } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import type { Operation } from '@upvu/dsteem';
 import { Client as DsteemClient, PrivateKey } from '@upvu/dsteem';
+import { createHash } from 'node:crypto';
+import { fetch } from 'undici';
 
 export class Steemit implements INodeType {
 	description: INodeTypeDescription = {
@@ -43,12 +46,6 @@ export class Steemit implements INodeType {
 						action: 'Create a post',
 					},
 					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update an existing post',
-						action: 'Update a post',
-					},
-					{
 						name: 'Get',
 						value: 'get',
 						description: 'Get a post',
@@ -59,6 +56,18 @@ export class Steemit implements INodeType {
 						value: 'search',
 						description: 'Search posts',
 						action: 'Search posts',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update an existing post',
+						action: 'Update a post',
+					},
+					{
+						name: 'Upload Image',
+						value: 'uploadImage',
+						description: 'Upload an image to Steemit',
+						action: 'Upload an image',
 					},
 				],
 				default: 'create',
@@ -181,6 +190,20 @@ export class Steemit implements INodeType {
 				displayOptions: {
 					show: {
 						operation: ['search'],
+					},
+				},
+			},
+			// Upload Image operation
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				description: 'Name of the binary property which contains the image data',
+				displayOptions: {
+					show: {
+						operation: ['uploadImage'],
 					},
 				},
 			},
@@ -332,6 +355,48 @@ export class Steemit implements INodeType {
 							},
 						});
 					}
+				} else if (operation === 'uploadImage') {
+					const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+					const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+					const buffer = Buffer.from(binaryData.data, 'base64');
+
+					// Generate image hash
+					const imageHash = createHash('sha256')
+						.update('ImageSigningChallenge')
+						.update(buffer)
+						.digest();
+
+					// Sign the image hash with posting key
+					const postingKey = PrivateKey.from(credentials.postingKey as string);
+					const signature = postingKey.sign(imageHash).toString();
+
+					// Prepare form data
+					const formData = new URLSearchParams();
+					formData.append('file', buffer.toString('base64'));
+					formData.append('signature', signature);
+					formData.append('username', credentials.accountName as string);
+
+					// Upload to Steemit images
+					const response = await fetch('https://steemitimages.com/api/upload', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: formData.toString(),
+					});
+
+					if (!response.ok) {
+						throw new NodeOperationError(this.getNode(), `Failed to upload image: ${response.statusText}`);
+					}
+
+					const result = await response.json() as { url: string };
+					returnData.push({
+						json: {
+							url: result.url,
+							fileName: binaryData.fileName,
+							signature,
+						},
+					});
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {

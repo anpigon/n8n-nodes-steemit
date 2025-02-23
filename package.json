@@ -6,13 +6,15 @@
     "n8n-community-node-package",
     "steemit",
     "blockchain",
-    "publishing"
+    "publishing",
+    "blog",
+    "content"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/anpigon/n8n-nodes-steemit-publisher",
   "author": {
     "name": "anpigon",
-    "email": "markan82@gmail.com"
+    "email": "anpigon@gmail.com"
   },
   "repository": {
     "type": "git",
@@ -39,13 +41,9 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js",
       "dist/credentials/SteemitApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js",
       "dist/nodes/Steemit/Steemit.node.js"
     ]
   },
@@ -64,6 +62,7 @@
     "n8n-workflow": ">=0.x"
   },
   "dependencies": {
-    "@upvu/dsteem": "^1.1.7"
+    "@upvu/dsteem": "^1.1.7",
+    "undici": "^7.3.0"
   }
 }
