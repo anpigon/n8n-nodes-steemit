@@ -267,7 +267,11 @@ export class Steemit implements INodeType {
 						.split(',')
 						.map((tag) => tag.trim());
 					const author = this.getNodeParameter('author', i) as string;
-					const permlink = this.getNodeParameter('permlink', i) as string;
+					const permlink = this.getNodeParameter(
+						'permlink',
+						i,
+						new Date().toISOString().replace(/[^\d]/g, ''),
+					) as string;
 
 					// Update post using dsteem
 					const postingKey = credentials.postingKey as string;
