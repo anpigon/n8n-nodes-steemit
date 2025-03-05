@@ -297,6 +297,7 @@ export class Steemit implements INodeType {
 
 					returnData.push({
 						json: {
+							parent_author: '',
 							parent_permlink,
 							author,
 							permlink,
@@ -314,6 +315,8 @@ export class Steemit implements INodeType {
 
 					returnData.push({
 						json: {
+							parent_author: post.parent_author,
+							parent_permlink: post.parent_permlink,
 							author: post.author,
 							permlink: post.permlink,
 							title: post.title,
@@ -339,6 +342,8 @@ export class Steemit implements INodeType {
 						returnData.push({
 							json: {
 								posts: posts.map((post) => ({
+									parent_author: post.parent_author,
+									parent_permlink: post.parent_permlink,
 									author: post.author,
 									permlink: post.permlink,
 									title: post.title,
@@ -352,6 +357,8 @@ export class Steemit implements INodeType {
 						returnData.push({
 							json: {
 								posts: posts.map((post) => ({
+									parent_author: post.parent_author,
+									parent_permlink: post.parent_permlink,
 									author: post.author,
 									permlink: post.permlink,
 									title: post.title,
