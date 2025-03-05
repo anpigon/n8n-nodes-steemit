@@ -1,8 +1,8 @@
 import type {
-  IExecuteFunctions,
-  INodeExecutionData,
-  INodeType,
-  INodeTypeDescription,
+	IExecuteFunctions,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import type { Operation } from '@upvu/dsteem';
@@ -276,13 +276,14 @@ export class Steemit implements INodeType {
 					// Update post using dsteem
 					const postingKey = credentials.postingKey as string;
 					const jsonMetadata = { tags, app: 'n8n-nodes-steemit' };
+					const parent_permlink = tags[0] || 'steemit';
 
 					const operations: Operation[] = [
 						[
 							'comment',
 							{
 								parent_author: '',
-								parent_permlink: tags[0] || 'steemit',
+								parent_permlink,
 								author,
 								permlink,
 								title,
@@ -296,6 +297,7 @@ export class Steemit implements INodeType {
 
 					returnData.push({
 						json: {
+							parent_permlink,
 							author,
 							permlink,
 							title,
@@ -390,10 +392,13 @@ export class Steemit implements INodeType {
 					});
 
 					if (!response.ok) {
-						throw new NodeOperationError(this.getNode(), `Failed to upload image: ${response.statusText}`);
+						throw new NodeOperationError(
+							this.getNode(),
+							`Failed to upload image: ${response.statusText}`,
+						);
 					}
 
-					const result = await response.json() as { url: string };
+					const result = (await response.json()) as { url: string };
 					returnData.push({
 						json: {
 							url: result.url,
