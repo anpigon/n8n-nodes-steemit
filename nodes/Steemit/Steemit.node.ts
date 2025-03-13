@@ -231,33 +231,40 @@ export class Steemit implements INodeType {
 					// Create post using dsteem
 					const accountName = credentials.accountName as string;
 					const postingKey = credentials.postingKey as string;
-					const permlink = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+					const permlink = new Date().toISOString().replace(/[^\d]/g, '');
 					const jsonMetadata = { tags, app: 'n8n-nodes-steemit' };
 
-					const operations: Operation[] = [
-						[
-							'comment',
-							{
-								parent_author: '',
-								parent_permlink: tags[0] || 'steemit',
-								author: accountName,
-								permlink,
-								title,
-								body: content,
-								json_metadata: JSON.stringify(jsonMetadata),
-							},
-						],
-					];
+					const comment = {
+						parent_author: '',
+						parent_permlink: tags[0] || 'steemit',
+						author: accountName,
+						permlink,
+						title,
+						body: content,
+						json_metadata: JSON.stringify(jsonMetadata),
+					};
 
-					await client.broadcast.sendOperations(operations, PrivateKey.from(postingKey));
+					const commentOptions = {
+						allow_curation_rewards: true,
+						allow_votes: true,
+						max_accepted_payout: '1000000.000 SBD',
+						percent_steem_dollars: 10000,
+					};
+
+					const operations: Operation[] = [['comment', comment], ['comment_options', commentOptions]];
+
+					const response = await client.broadcast.sendOperations(operations, PrivateKey.from(postingKey));
 
 					returnData.push({
 						json: {
-							author: accountName,
-							permlink,
-							title,
+							id: response.id,
+							parent_author: comment.parent_author,
+							parent_permlink: comment.parent_author,
+							author: comment.author,
+							permlink: comment.permlink,
+							title: comment.title,
+							content: comment.body,
 							tags,
-							content,
 						},
 					});
 				} else if (operation === 'update') {
