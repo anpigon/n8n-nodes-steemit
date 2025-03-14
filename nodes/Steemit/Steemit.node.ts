@@ -244,12 +244,12 @@ export class Steemit implements INodeType {
 						json_metadata: JSON.stringify(jsonMetadata),
 					};
 
-					const commentOptions = {
-						allow_curation_rewards: true,
-						allow_votes: true,
-						max_accepted_payout: '1000000.000 SBD',
-						percent_steem_dollars: 10000,
-					};
+					// const commentOptions = {
+					// 	allow_curation_rewards: true,
+					// 	allow_votes: true,
+					// 	max_accepted_payout: '1000000.000 SBD',
+					// 	percent_steem_dollars: 10000,
+					// };
 
 					const operations: Operation[] = [['comment', comment]];
 
