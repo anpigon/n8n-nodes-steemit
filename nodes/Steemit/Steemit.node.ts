@@ -251,7 +251,7 @@ export class Steemit implements INodeType {
 						percent_steem_dollars: 10000,
 					};
 
-					const operations: Operation[] = [['comment', comment], ['comment_options', commentOptions]];
+					const operations: Operation[] = [['comment', comment]];
 
 					const response = await client.broadcast.sendOperations(operations, PrivateKey.from(postingKey));
 
