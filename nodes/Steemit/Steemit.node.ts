@@ -259,7 +259,7 @@ export class Steemit implements INodeType {
 						json: {
 							id: response.id,
 							parent_author: comment.parent_author,
-							parent_permlink: comment.parent_author,
+							parent_permlink: comment.parent_permlink,
 							author: comment.author,
 							permlink: comment.permlink,
 							title: comment.title,
