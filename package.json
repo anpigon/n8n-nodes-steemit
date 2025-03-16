@@ -33,7 +33,8 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
     "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "pnpm build && pnpm lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    "prepublishOnly": "pnpm build && pnpm lint -c .eslintrc.prepublish.js nodes credentials package.json",
+    "test-local": "pnpm build && npm link && cd ~/.n8n/custom && npm link n8n-nodes-steemit && npx n8n start"
   },
   "files": [
     "dist"
