@@ -1,6 +1,6 @@
 {
-  "name": "n8n-nodes-steemit-publisher",
-  "version": "0.1.8",
+  "name": "n8n-nodes-steemit",
+  "version": "0.1.0",
   "description": "n8n node to publish and manage content on Steemit",
   "keywords": [
     "n8n-community-node-package",
@@ -11,14 +11,14 @@
     "content"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/anpigon/n8n-nodes-steemit-publisher",
+  "homepage": "https://github.com/anpigon/n8n-nodes-steemit",
   "author": {
     "name": "anpigon",
     "email": "anpigon@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/anpigon/n8n-nodes-steemit-publisher.git"
+    "url": "https://github.com/anpigon/n8n-nodes-steemit.git"
   },
   "engines": {
     "node": ">=18.10",
