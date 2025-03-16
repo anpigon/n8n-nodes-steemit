@@ -52,6 +52,12 @@ export class Steemit implements INodeType {
 						action: 'Get a post',
 					},
 					{
+						name: 'Get Account',
+						value: 'getAccount',
+						description: 'Get account information',
+						action: 'Get account information',
+					},
+					{
 						name: 'Search',
 						value: 'search',
 						description: 'Search posts',
@@ -141,6 +147,19 @@ export class Steemit implements INodeType {
 					},
 				},
 				required: true,
+			},
+			// Get Account operation
+			{
+				displayName: 'Username',
+				name: 'username',
+				type: 'string',
+				default: '',
+				description: 'Steemit username to get account information for',
+				displayOptions: {
+					show: {
+						operation: ['getAccount'],
+					},
+				},
 			},
 			// Search operation
 			{
@@ -331,6 +350,49 @@ export class Steemit implements INodeType {
 							created: post.created,
 							lastUpdate: post.last_update,
 							tags: JSON.parse(post.json_metadata).tags || [],
+						},
+					});
+				} else if (operation === 'getAccount') {
+					const username = this.getNodeParameter('username', i) as string;
+
+					// Get account information using dsteem
+					const accounts = await client.database.getAccounts([username || credentials.accountName as string]);
+
+					if (accounts.length === 0) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Account with username '${username}' not found`,
+							{ itemIndex: i },
+						);
+					}
+
+					const account = accounts[0];
+
+					// Return account information with relevant fields
+					returnData.push({
+						json: {
+							...account,
+							id: account.id,
+							name: account.name,
+							created: account.created,
+							reputation: account.reputation,
+							balance: account.balance,
+							sbd_balance: account.sbd_balance,
+							vesting_shares: account.vesting_shares,
+							post_count: account.post_count,
+							json_metadata: account.json_metadata ? JSON.parse(account.json_metadata) : {},
+							last_account_update: account.last_account_update,
+							last_post: account.last_post,
+							last_vote_time: account.last_vote_time,
+							recovery_account: account.recovery_account,
+							owner: account.owner,
+							active: account.active,
+							posting: account.posting,
+							memo_key: account.memo_key,
+							reward_sbd_balance: account.reward_sbd_balance,
+							reward_steem_balance: account.reward_steem_balance,
+							reward_vesting_balance: account.reward_vesting_balance,
+							reward_vesting_steem: account.reward_vesting_steem
 						},
 					});
 				} else if (operation === 'search') {
