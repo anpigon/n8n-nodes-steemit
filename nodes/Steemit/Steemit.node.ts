@@ -547,10 +547,10 @@ export class Steemit implements INodeType {
 					// Get account information to check available rewards
 					const accountName = credentials.accountName as string;
 					const postingKey = PrivateKey.from(credentials.postingKey as string);
-					
+
 					// Get current account data to get available rewards
 					const accounts = await client.database.getAccounts([accountName]);
-					
+
 					if (accounts.length === 0) {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -558,18 +558,20 @@ export class Steemit implements INodeType {
 							{ itemIndex: i },
 						);
 					}
-					
+
 					const account = accounts[0];
-					
+
 					// Get available reward balances
 					const reward_steem_balance = account.reward_steem_balance;
 					const reward_sbd_balance = account.reward_sbd_balance;
 					const reward_vesting_balance = account.reward_vesting_balance;
-					
+					const reward_vesting_steem = account.reward_vesting_steem;
+
 					const claimAllRewards = this.getNodeParameter('claimAllRewards', i) as boolean;
-					
+
+					// @ts-expect-error
 					let reward_steem, reward_sbd, reward_vests;
-					
+
 					if (claimAllRewards) {
 						// Use the full reward balances
 						reward_steem = reward_steem_balance;
@@ -581,7 +583,23 @@ export class Steemit implements INodeType {
 						reward_sbd = this.getNodeParameter('rewardSbd', i) as string;
 						reward_vests = this.getNodeParameter('rewardVests', i) as string;
 					}
-					
+
+					console.log(
+						`${accountName} Claim | STEEM | SBD = ${reward_sbd} | STEEM = ${reward_steem} | VESTS = ${reward_vests}(${reward_vesting_steem})`,
+					);
+
+					if (
+						reward_sbd_balance === '0.000 SBD' &&
+						reward_steem_balance === '0.000 STEEM' &&
+						reward_vesting_balance !== '0.000000 VESTS'
+					) {
+						throw new NodeOperationError(
+							this.getNode(),
+							"Cannot claim VESTS separately. To claim VESTS, you must claim all rewards together. Please enable 'Claim All Available Rewards' or ensure STEEM/SBD rewards are present",
+							{ itemIndex: i }
+						);
+					}
+
 					// Create the claim_reward_balance operation
 					const operations: Operation[] = [
 						[
@@ -594,10 +612,10 @@ export class Steemit implements INodeType {
 							},
 						],
 					];
-					
+
 					// Send the operation
 					const response = await client.broadcast.sendOperations(operations, postingKey);
-					
+
 					returnData.push({
 						json: {
 							success: true,
