@@ -75,6 +75,12 @@ export class Steemit implements INodeType {
 						description: 'Upload an image to Steemit',
 						action: 'Upload an image',
 					},
+					{
+						name: 'Claim Reward Balance',
+						value: 'claimRewardBalance',
+						description: 'Claim the available reward balance',
+						action: 'Claim reward balance',
+					},
 				],
 				default: 'create',
 			},
@@ -223,6 +229,61 @@ export class Steemit implements INodeType {
 				displayOptions: {
 					show: {
 						operation: ['uploadImage'],
+					},
+				},
+			},
+			// Claim Reward Balance operation
+			{
+				displayName: 'Claim All Available Rewards',
+				name: 'claimAllRewards',
+				type: 'boolean',
+				default: true,
+				description: 'Whether to claim all available rewards or specify amounts',
+				displayOptions: {
+					show: {
+						operation: ['claimRewardBalance'],
+					},
+				},
+			},
+			{
+				displayName: 'STEEM Amount',
+				name: 'rewardSteem',
+				type: 'string',
+				default: '0.000 STEEM',
+				description: 'Amount of STEEM to claim',
+				placeholder: '0.000 STEEM',
+				displayOptions: {
+					show: {
+						operation: ['claimRewardBalance'],
+						claimAllRewards: [false],
+					},
+				},
+			},
+			{
+				displayName: 'SBD Amount',
+				name: 'rewardSbd',
+				type: 'string',
+				default: '0.000 SBD',
+				description: 'Amount of SBD to claim',
+				placeholder: '0.000 SBD',
+				displayOptions: {
+					show: {
+						operation: ['claimRewardBalance'],
+						claimAllRewards: [false],
+					},
+				},
+			},
+			{
+				displayName: 'VESTS Amount',
+				name: 'rewardVests',
+				type: 'string',
+				default: '0.000000 VESTS',
+				description: 'Amount of VESTS to claim',
+				placeholder: '0.000000 VESTS',
+				displayOptions: {
+					show: {
+						operation: ['claimRewardBalance'],
+						claimAllRewards: [false],
 					},
 				},
 			},
@@ -480,6 +541,73 @@ export class Steemit implements INodeType {
 							url: result.url,
 							fileName: binaryData.fileName,
 							signature,
+						},
+					});
+				} else if (operation === 'claimRewardBalance') {
+					// Get account information to check available rewards
+					const accountName = credentials.accountName as string;
+					const postingKey = PrivateKey.from(credentials.postingKey as string);
+					
+					// Get current account data to get available rewards
+					const accounts = await client.database.getAccounts([accountName]);
+					
+					if (accounts.length === 0) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Account with username '${accountName}' not found`,
+							{ itemIndex: i },
+						);
+					}
+					
+					const account = accounts[0];
+					
+					// Get available reward balances
+					const reward_steem_balance = account.reward_steem_balance;
+					const reward_sbd_balance = account.reward_sbd_balance;
+					const reward_vesting_balance = account.reward_vesting_balance;
+					
+					const claimAllRewards = this.getNodeParameter('claimAllRewards', i) as boolean;
+					
+					let reward_steem, reward_sbd, reward_vests;
+					
+					if (claimAllRewards) {
+						// Use the full reward balances
+						reward_steem = reward_steem_balance;
+						reward_sbd = reward_sbd_balance;
+						reward_vests = reward_vesting_balance;
+					} else {
+						// Use user-specified amounts
+						reward_steem = this.getNodeParameter('rewardSteem', i) as string;
+						reward_sbd = this.getNodeParameter('rewardSbd', i) as string;
+						reward_vests = this.getNodeParameter('rewardVests', i) as string;
+					}
+					
+					// Create the claim_reward_balance operation
+					const operations: Operation[] = [
+						[
+							'claim_reward_balance',
+							{
+								account: accountName,
+								reward_steem: reward_steem,
+								reward_sbd: reward_sbd,
+								reward_vests: reward_vests,
+							},
+						],
+					];
+					
+					// Send the operation
+					const response = await client.broadcast.sendOperations(operations, postingKey);
+					
+					returnData.push({
+						json: {
+							success: true,
+							transaction_id: response.id,
+							block_num: response.block_num,
+							claimed: {
+								steem: reward_steem,
+								sbd: reward_sbd,
+								vests: reward_vests,
+							},
 						},
 					});
 				}
