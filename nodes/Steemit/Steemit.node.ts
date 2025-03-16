@@ -569,8 +569,9 @@ export class Steemit implements INodeType {
 
 					const claimAllRewards = this.getNodeParameter('claimAllRewards', i) as boolean;
 
-					// @ts-expect-error
-					let reward_steem, reward_sbd, reward_vests;
+					let reward_steem = null;
+					let reward_sbd = null;
+					let reward_vests = null;
 
 					if (claimAllRewards) {
 						// Use the full reward balances
