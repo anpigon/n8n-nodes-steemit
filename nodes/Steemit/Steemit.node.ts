@@ -40,6 +40,12 @@ export class Steemit implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Claim Reward Balance',
+						value: 'claimRewardBalance',
+						description: 'Claim the available reward balance',
+						action: 'Claim reward balance',
+					},
+					{
 						name: 'Create',
 						value: 'create',
 						description: 'Create a new post',
@@ -74,12 +80,6 @@ export class Steemit implements INodeType {
 						value: 'uploadImage',
 						description: 'Upload an image to Steemit',
 						action: 'Upload an image',
-					},
-					{
-						name: 'Claim Reward Balance',
-						value: 'claimRewardBalance',
-						description: 'Claim the available reward balance',
-						action: 'Claim reward balance',
 					},
 				],
 				default: 'create',
