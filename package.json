@@ -28,7 +28,7 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "tsc && gulp build:icons",
+    "build": "rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
@@ -57,6 +57,7 @@
     "n8n-core": "^1.14.1",
     "n8n-workflow": "^1.70.0",
     "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
     "typescript": "^5.5.3"
   },
   "peerDependencies": {
